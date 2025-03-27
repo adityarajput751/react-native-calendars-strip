@@ -9,6 +9,7 @@ A lightweight and customizable toast notification component for React Native, us
 
 ## Demo
 
+<img src="./src/demo.gif" alt="Demo" width="180">
 
 
 
