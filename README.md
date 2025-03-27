@@ -9,7 +9,8 @@ A lightweight and customizable toast notification component for React Native, us
 
 ## Demo
 
-[![Watch the video](./demo.mp4)](./demo.mp4)
+
+    <img src="demo.gif" alt="Demo" width="180">
 
 
 ## Installation
