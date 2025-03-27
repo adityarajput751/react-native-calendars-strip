@@ -7,6 +7,11 @@ A lightweight and customizable toast notification component for React Native, us
 - Automatically dismisses after a configurable duration.
 - Easy-to-use context API for managing toast notifications globally.
 
+## Demo
+
+[![Watch the video](./demo.mp4)](./demo.mp4)
+
+
 ## Installation
 
 ### Prerequisites

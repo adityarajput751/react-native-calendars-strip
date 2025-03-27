@@ -61,11 +61,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignSelf: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 10
   },
   message: {
     color: '#fff',
     fontSize: width * 0.045,
     fontWeight: 'bold',
-    textAlign: 'center',
+    // textAlign: 'center',
   },
 });
