@@ -1,6 +1,6 @@
 {
   "name": "react-native-custom-toastmessage",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "A lightweight and customizable toast notification component for React Native, using react-native-animatable for smooth animations.",
   "main": "index.js",
   "funding": {
@@ -11,7 +11,11 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "react-native", "toast", "message","react-native-custom-toastmessage","toastmessage"
+    "react-native",
+    "toast",
+    "message",
+    "react-native-custom-toastmessage",
+    "toastmessage"
   ],
   "author": "Aditya Rajput",
   "license": "ISC",
