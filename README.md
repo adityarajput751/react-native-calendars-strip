@@ -20,3 +20,55 @@ A lightweight, customizable, and responsive horizontal calendar strip for React 
 
 ```bash
 npm install react-native-calendars-strip
+ ```
+## Usage
+
+### Step 1: Wrap your App with `Calendar Strip`
+```tsx
+import React from 'react';
+import { View } from 'react-native';
+import Calendar from 'react-native-calendars-strip';
+
+const App = () => {
+  const handleDateSelect = (date) => {
+    console.log('Selected Date:', date.format('YYYY-MM-DD'));
+  };
+
+  return (
+    <View>
+      <Calendar
+        firstTime={true}
+        onDateSelect={handleDateSelect}
+        calendarStyle={{
+          selectedDayColor: '#FF6347',
+          selectedDayTextColor: '#fff',
+          headerTextStyle: { color: '#333' },
+          dayTextStyle: { fontSize: 13 },
+          dateTextStyle: { fontSize: 15, fontWeight: '600' },
+          containerStyle: { backgroundColor: '#F9F9F9', padding: 10 },
+        }}
+      />
+    </View>
+  );
+};
+
+export default App;
+
+```
+
+## Customization (calendarStyle)
+- You can customize the appearance by passing an object to the calendarStyle prop:
+
+```tsx
+
+calendarStyle = {
+  selectedDayColor?: string,
+  selectedDayTextColor?: string,
+  containerStyle?: ViewStyle,
+  headerTextStyle?: TextStyle,
+  dayContainerStyle?: ViewStyle,
+  dayTextStyle?: TextStyle,
+  dateTextStyle?: TextStyle,
+}
+```
+
