@@ -1,7 +1,7 @@
 {
   "name": "react-native-calendars-strip",
-  "version": "1.0.0",
-  "description": "A lightweight and customizable toast notification component for React Native, using react-native-animatable for smooth animations.",
+  "version": "1.0.1",
+  "description": "A customizable horizontal calendar strip component for React Native with month navigation, responsive design, and date selection support.",
   "main": "index.js",
   "funding": {
     "type": "buymeacoffee",
