@@ -1,6 +1,6 @@
 {
-  "name": "react-native-custom-toastmessage",
-  "version": "1.0.10",
+  "name": "react-native-calendars-strip",
+  "version": "1.0.11",
   "description": "A lightweight and customizable toast notification component for React Native, using react-native-animatable for smooth animations.",
   "main": "index.js",
   "funding": {
@@ -14,7 +14,7 @@
     "react-native",
     "toast",
     "message",
-    "react-native-custom-toastmessage",
+    "react-native-calendars-strip",
     "toastmessage"
   ],
   "author": "Aditya Rajput",

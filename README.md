@@ -16,9 +16,9 @@ A lightweight and customizable toast notification component for React Native, us
 ## Installation
 
 ### Prerequisites
-To install `react-native-custom-toastmessage` in your project:
+To install `react-native-calendars-strip` in your project:
 ```sh
-npm install react-native-custom-toastmessage
+npm install react-native-calendars-strip
 ```
 
 ### Install the Toast Component
@@ -29,7 +29,7 @@ Since this is a custom component, you need to copy the provided code into your p
 ### Step 1: Wrap your App with `ToastProvider`
 ```tsx
 import React from 'react';
-import { ToastProvider } from 'react-native-custom-toastmessage';
+import { ToastProvider } from 'react-native-calendars-strip';
 
 const App = () => {
   return (
@@ -46,7 +46,7 @@ export default App;
 ```tsx
 import React from 'react';
 import { View, Button } from 'react-native';
-import { useToast } from 'react-native-custom-toastmessage'; 
+import { useToast } from 'react-native-calendars-strip'; 
 
 const ExampleScreen = () => {
   const { ToastShow } = useToast();
