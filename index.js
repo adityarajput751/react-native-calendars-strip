@@ -1,1 +1,3 @@
-export { ToastProvider, useToast } from './src/components/ToastMessage';
+import Calendar from "./src/components/Calendar";
+
+export default Calendar;
