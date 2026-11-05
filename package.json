@@ -1,6 +1,6 @@
 {
   "name": "react-native-calendars-strip",
-  "version": "1.0.3",
+  "version": "1.2.0",
   "description": "Horizontal calendar strip and day picker for React Native and Expo, with month navigation, min/max dates, theming and TypeScript types.",
   "main": "index.js",
   "types": "index.d.ts",
