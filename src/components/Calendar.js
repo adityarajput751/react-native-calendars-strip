@@ -1,68 +1,143 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
     View,
     Text,
     TouchableOpacity,
     Image,
     FlatList,
-    StyleSheet,
+    useWindowDimensions,
 } from 'react-native';
 import moment from 'moment';
 import {
-    responsiveScreenWidth,
-    responsiveScreenHeight,
-    responsiveScreenFontSize,
+    responsiveWidth,
+    responsiveHeight,
+    responsiveFontSize,
 } from 'react-native-responsive-dimensions';
 
-const Calendar = ({ firstTime, onDateSelect, calendarStyle = {} }) => {
-    const [selectedDate, setSelectedDate] = useState(moment());
-    const [datesInMonth, setDatesInMonth] = useState([]);
+const DEFAULT_DAY_COLOR = '#E0EBF3';
+const DEFAULT_SELECTED_DAY_COLOR = '#11A0F8';
+const DISABLED_OPACITY = 0.35;
+const ARROW_HIT_SLOP = { top: 8, bottom: 8, left: 8, right: 8 };
+const DAY_HIT_SLOP = { top: 6, bottom: 6 };
 
-    const generateMonthDates = (date) => {
-        const start = moment(date).startOf('month');
-        const end = moment(date).endOf('month');
+const Calendar = ({
+    firstTime,
+    onDateSelect,
+    onMonthChange,
+    selectedDate: selectedDateProp,
+    minDate,
+    maxDate,
+    calendarStyle = {},
+}) => {
+    // Subscribes to size changes so the sizes below follow rotation and split-screen.
+    useWindowDimensions();
+
+    const listRef = useRef(null);
+    const hasScrolled = useRef(false);
+    const [listWidth, setListWidth] = useState(0);
+    const [selectedDate, setSelectedDate] = useState(() =>
+        selectedDateProp ? moment(selectedDateProp) : moment()
+    );
+
+    const selectedDateKey = selectedDateProp
+        ? moment(selectedDateProp).format('YYYY-MM-DD')
+        : null;
+
+    useEffect(() => {
+        if (selectedDateKey) {
+            setSelectedDate(moment(selectedDateProp));
+        }
+    }, [selectedDateKey]);
+
+    const monthKey = selectedDate.format('YYYY-MM');
+
+    const datesInMonth = useMemo(() => {
+        const start = moment(selectedDate).startOf('month');
+        const end = moment(selectedDate).endOf('month');
         const dates = [];
 
         for (let d = moment(start); d.isSameOrBefore(end); d.add(1, 'day')) {
             dates.push(moment(d));
         }
 
-        setDatesInMonth(dates);
-    };
+        return dates;
+    }, [monthKey]);
 
+    const dayWidth = responsiveWidth(9.3);
+    const dayMargin = responsiveWidth(1.1);
+    const listPadding = responsiveWidth(2.2);
+    const itemLength = dayWidth + dayMargin * 2;
+    const selectedIndex = selectedDate.date() - 1;
+
+    // Keeps the selected day in view, centred where the list allows it.
     useEffect(() => {
-        generateMonthDates(selectedDate);
-    }, [selectedDate]);
+        if (!listWidth || !listRef.current) {
+            return;
+        }
 
+        const contentWidth = listPadding * 2 + itemLength * datesInMonth.length;
+        const centredOffset =
+            listPadding + itemLength * selectedIndex - (listWidth - itemLength) / 2;
+        const offset = Math.max(0, Math.min(centredOffset, contentWidth - listWidth));
+
+        listRef.current.scrollToOffset({ offset, animated: hasScrolled.current });
+        hasScrolled.current = true;
+    }, [monthKey, selectedIndex, listWidth, itemLength]);
+
+    const isDateDisabled = (date) =>
+        Boolean(
+            (minDate && date.isBefore(minDate, 'day')) ||
+                (maxDate && date.isAfter(maxDate, 'day'))
+        );
+
+    const canGoToPrevMonth =
+        !minDate ||
+        moment(selectedDate)
+            .subtract(1, 'month')
+            .endOf('month')
+            .isSameOrAfter(minDate, 'day');
+
+    const canGoToNextMonth =
+        !maxDate ||
+        moment(selectedDate)
+            .add(1, 'month')
+            .startOf('month')
+            .isSameOrBefore(maxDate, 'day');
+
+    // Callbacks get their own copy, so a consumer calling date.add() can't change our state.
     const handleDateSelect = (date) => {
-        setSelectedDate(date);
+        setSelectedDate(moment(date));
         if (onDateSelect) {
-            onDateSelect(date);
+            onDateSelect(moment(date));
         }
     };
 
-    const goToPrevMonth = () => {
-        const newDate = moment(selectedDate).subtract(1, 'month').startOf('month');
-        setSelectedDate(newDate);
-        if (onDateSelect) {
-            onDateSelect(newDate);
+    const changeMonth = (amount) => {
+        let newDate = moment(selectedDate).add(amount, 'month').startOf('month');
+        if (minDate && newDate.isBefore(minDate, 'day')) {
+            newDate = moment(minDate);
+        }
+
+        handleDateSelect(newDate);
+        if (onMonthChange) {
+            onMonthChange(moment(newDate));
         }
     };
 
-    const goToNextMonth = () => {
-        const newDate = moment(selectedDate).add(1, 'month').startOf('month');
-        setSelectedDate(newDate);
-        if (onDateSelect) {
-            onDateSelect(newDate);
-        }
-    };
+    const getItemLayout = (_, index) => ({
+        length: itemLength,
+        offset: listPadding + itemLength * index,
+        index,
+    });
 
     const renderDateItem = ({ item }) => {
         const isSelected = item.isSame(selectedDate, 'day');
+        const isDisabled = isDateDisabled(item);
 
-        const dayBackgroundColor = isSelected
-            ? calendarStyle.selectedDayColor || (firstTime ? '#E0EBF3' : '#11A0F8')
-            : '#E0EBF3';
+        const selectedBackgroundColor = isSelected
+            ? calendarStyle.selectedDayColor ||
+              (firstTime ? null : DEFAULT_SELECTED_DAY_COLOR)
+            : null;
 
         const textColor = isSelected
             ? calendarStyle.selectedDayTextColor || (firstTime ? '#000' : '#fff')
@@ -71,10 +146,26 @@ const Calendar = ({ firstTime, onDateSelect, calendarStyle = {} }) => {
         return (
             <TouchableOpacity
                 onPress={() => handleDateSelect(item)}
+                disabled={isDisabled}
+                hitSlop={DAY_HIT_SLOP}
+                accessibilityRole="button"
+                accessibilityLabel={item.format('dddd, MMMM D, YYYY')}
+                accessibilityState={{ selected: isSelected, disabled: isDisabled }}
                 style={[
-                    styles.dayContainer,
+                    {
+                        borderRadius: responsiveWidth(1.8),
+                        width: dayWidth,
+                        minHeight: dayWidth,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginHorizontal: dayMargin,
+                        backgroundColor: DEFAULT_DAY_COLOR,
+                    },
                     calendarStyle.dayContainerStyle,
-                    { backgroundColor: dayBackgroundColor },
+                    selectedBackgroundColor && {
+                        backgroundColor: selectedBackgroundColor,
+                    },
+                    isDisabled && { opacity: DISABLED_OPACITY },
                 ]}
             >
                 <Text
@@ -97,6 +188,37 @@ const Calendar = ({ firstTime, onDateSelect, calendarStyle = {} }) => {
         );
     };
 
+    const renderArrow = (label, source, enabled, onPress) => (
+        <TouchableOpacity
+            style={{
+                height: responsiveWidth(7),
+                width: responsiveWidth(7),
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: enabled ? 1 : DISABLED_OPACITY,
+            }}
+            onPress={onPress}
+            disabled={!enabled}
+            hitSlop={ARROW_HIT_SLOP}
+            accessibilityRole="button"
+            accessibilityLabel={label}
+            accessibilityState={{ disabled: !enabled }}
+        >
+            <Image
+                style={[
+                    {
+                        height: responsiveWidth(5),
+                        width: responsiveWidth(5),
+                    },
+                    calendarStyle.arrowColor && {
+                        tintColor: calendarStyle.arrowColor,
+                    },
+                ]}
+                source={source}
+            />
+        </TouchableOpacity>
+    );
+
     return (
         <View style={calendarStyle.containerStyle || {}}>
             {/* Header */}
@@ -105,31 +227,21 @@ const Calendar = ({ firstTime, onDateSelect, calendarStyle = {} }) => {
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    marginTop: responsiveScreenHeight(1.3),
+                    marginTop: responsiveHeight(1.3),
                 }}
             >
-                <TouchableOpacity
-                    style={{
-                        height: responsiveScreenWidth(7),
-                        width: responsiveScreenWidth(7),
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                    onPress={goToPrevMonth}
-                >
-                    <Image
-                        style={{
-                            height: responsiveScreenWidth(5),
-                            width: responsiveScreenWidth(5),
-                        }}
-                        source={require('../assets/left.png')} // Make sure this image exists
-                    />
-                </TouchableOpacity>
+                {renderArrow(
+                    'Previous month',
+                    require('../assets/left.png'),
+                    canGoToPrevMonth,
+                    () => changeMonth(-1)
+                )}
 
                 <Text
+                    accessibilityRole="header"
                     style={[
                         {
-                            fontSize: responsiveScreenFontSize(2),
+                            fontSize: responsiveFontSize(2),
                             fontWeight: 'bold',
                             color: '#000',
                         },
@@ -139,50 +251,32 @@ const Calendar = ({ firstTime, onDateSelect, calendarStyle = {} }) => {
                     {selectedDate.format('MMMM YYYY')}
                 </Text>
 
-                <TouchableOpacity
-                    style={{
-                        height: responsiveScreenWidth(7),
-                        width: responsiveScreenWidth(7),
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                    onPress={goToNextMonth}
-                >
-                    <Image
-                        style={{
-                            height: responsiveScreenWidth(5),
-                            width: responsiveScreenWidth(5),
-                        }}
-                        source={require('../assets/right.png')} // Make sure this image exists
-                    />
-                </TouchableOpacity>
+                {renderArrow(
+                    'Next month',
+                    require('../assets/right.png'),
+                    canGoToNextMonth,
+                    () => changeMonth(1)
+                )}
             </View>
 
             {/* Calendar Strip */}
             <FlatList
+                ref={listRef}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{
-                    paddingVertical: responsiveScreenHeight(1),
-                    paddingHorizontal: responsiveScreenHeight(1),
+                    paddingVertical: responsiveHeight(1),
+                    paddingHorizontal: listPadding,
                 }}
                 data={datesInMonth}
                 keyExtractor={(item) => item.format('YYYY-MM-DD')}
                 renderItem={renderDateItem}
+                getItemLayout={getItemLayout}
+                initialNumToRender={31}
+                onLayout={(event) => setListWidth(event.nativeEvent.layout.width)}
             />
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    dayContainer: {
-        borderRadius: responsiveScreenWidth(1.8),
-        width: responsiveScreenWidth(9.3),
-        height: responsiveScreenWidth(9.3),
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginHorizontal: responsiveScreenWidth(1.1),
-    },
-});
 
 export default Calendar;

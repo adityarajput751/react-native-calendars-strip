@@ -1,8 +1,23 @@
 {
   "name": "react-native-calendars-strip",
   "version": "1.0.3",
-  "description": "A customizable horizontal calendar strip component for React Native with month navigation, responsive design, and date selection support.",
+  "description": "Horizontal calendar strip and day picker for React Native and Expo, with month navigation, min/max dates, theming and TypeScript types.",
   "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "src/components",
+    "src/assets"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adityarajput751/react-native-calendars-strip.git"
+  },
+  "homepage": "https://github.com/adityarajput751/react-native-calendars-strip#readme",
+  "bugs": {
+    "url": "https://github.com/adityarajput751/react-native-calendars-strip/issues"
+  },
   "funding": {
     "type": "buymeacoffee",
     "url": "https://buymeacoffee.com/adityarajput"
@@ -12,19 +27,27 @@
   },
   "keywords": [
     "react-native",
-    "toast",
-    "message",
-    "react-native-calendars-strip",
-    "toastmessage"
+    "expo",
+    "calendar",
+    "calendar-strip",
+    "horizontal-calendar",
+    "date-picker",
+    "datepicker",
+    "day-picker",
+    "date-strip",
+    "scrollable-calendar",
+    "ios",
+    "android",
+    "typescript"
   ],
   "author": "Aditya Rajput",
   "license": "ISC",
   "peerDependencies": {
-    "react": ">=18.3.1",
-    "react-native": ">=0.76.0"
+    "react": ">=16.8.0",
+    "react-native": ">=0.62.0"
   },
   "dependencies": {
-    "moment": "^2.30.1",
+    "moment": "^2.31.0",
     "react-native-responsive-dimensions": "^3.1.1"
   }
 }
